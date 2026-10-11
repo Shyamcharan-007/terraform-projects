@@ -1,131 +1,60 @@
-resource "aws_vpc" "myvpc" {
-  cidr_block = var.cidr
+module "vpc" {
+  source = "./terraform_modules/modules/vpc"
+  cidr   = var.cidr
 }
 
-resource "aws_subnet" "mysubnet1" {
-  vpc_id            = aws_vpc.myvpc.id
-  cidr_block        = "10.1.0.0/24"
-  availability_zone = "us-east-1a"
+module "subnet" {
+  source = "./terraform_modules/modules/subnet"
+  vpc    = module.vpc.vpc_id
 }
 
-resource "aws_subnet" "mysubnet2" {
-  vpc_id            = aws_vpc.myvpc.id
-  cidr_block        = "10.1.1.0/24"
-  availability_zone = "us-east-1b"
+module "internet_gateway" {
+  source = "./terraform_modules/modules/internet_gateway"
+  vpc_id = module.vpc.vpc_id
 }
 
-resource "aws_internet_gateway" "myigw" {
-  vpc_id = aws_vpc.myvpc.id
+module "route_table" {
+  source   = "./terraform_modules/modules/routing_tables"
+  vpc      = module.vpc.vpc_id
+  igw_id   = module.internet_gateway.igw_id
+  subnet_1 = module.subnet.sub1_id
+  subnet_2 = module.subnet.sub2_id
 }
 
-resource "aws_route_table" "myrt" {
-  vpc_id = aws_vpc.myvpc.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.myigw.id
-  }
-}
-resource "aws_route_table_association" "myrta1" {
-  subnet_id      = aws_subnet.mysubnet1.id
-  route_table_id = aws_route_table.myrt.id
-}
-resource "aws_route_table_association" "myrta2" {
-  subnet_id      = aws_subnet.mysubnet2.id
-  route_table_id = aws_route_table.myrt.id
-}
-resource "aws_security_group" "mysg" {
-  name        = "mysg"
-  description = "Allow SSH and HTTP traffic"
-  vpc_id      = aws_vpc.myvpc.id
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "mysg"
-  }
+module "security_groups" {
+  source   = "./terraform_modules/modules/security_groups"
+  vpc      = module.vpc.vpc_id
+  ssh_cidr = var.ssh_cidr
 }
 
-resource "aws_s3_bucket" "mybuc" {
-  bucket = "shyam_terraform_project"
+module "s3" {
+  source = "./terraform_modules/modules/s3"
+}
+module "instance" {
+  source            = "./terraform_modules/modules/instance"
+  instance_type     = var.instance_type
+  ami               = var.ami_id
+  vpc_id            = module.vpc.vpc_id
+  subnet_1          = module.subnet.sub1_id
+  subnet_2          = module.subnet.sub2_id
+  security_group_id = module.security_groups.mysg_id
 }
 
-resource "aws_instance" "myins1" {
-  instance_type          = "t3.micro"
-  ami                    = "ami-0c02fb55956c7d316"
-  subnet_id              = aws_subnet.mysubnet1.id
-  vpc_security_group_ids = [aws_security_group.mysg.id]
-}
-resource "aws_instance" "myins2" {
-  instance_type          = "t3.micro"
-  ami                    = "ami-0c02fb55956c7d316"
-  subnet_id              = aws_subnet.mysubnet2.id
-  vpc_security_group_ids = [aws_security_group.mysg.id]
+module "target_groups" {
+  source    = "./terraform_modules/modules/target_groups"
+  vpc       = module.vpc.vpc_id
+  instance1 = module.instance.ins1_id
+  instance2 = module.instance.ins2_id
 }
 
-resource "aws_lb" "mylb" {
-  name               = "mylb"
-  security_groups    = [aws_security_group.mysg.id]
-  load_balancer_type = "application"
-  subnets            = [aws_subnet.mysubnet1.id, aws_subnet.mysubnet2.id]
+module "load_balancer" {
+  source           = "./terraform_modules/modules/load_balancer"
+  alb_sg_id        = module.security_groups.mysg_id
+  subnet_1         = module.subnet.sub1_id
+  subnet_2         = module.subnet.sub2_id
+  target_group_arn = module.target_groups.aws_target_group_arn
 
 }
-resource "aws_lb_target_group" "tg" {
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = aws_vpc.myvpc.id
-
-  health_check {
-    path     = "/"
-    protocol = "HTTP"
-  }
-}
-resource "aws_lb_target_group_attachment" "attach1" {
-  target_group_arn = aws_lb_target_group.tg.arn
-  target_id        = aws_instance.myins1.id
-}
-resource "aws_lb_target_groups_attachment" "attach2" {
-  target_groups_arn = aws_lb_target_group.tg.arn
-  target_id         = aws_instance.myins2.id
-}
-resource "aws_lb_listener" "mylistener" {
-  load_balancer_arn = aws_lb.mylb.arn
-  port              = 80
-  protocol          = "HTTP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.tg.arn
-  }
-
-}
-output "loadbalancerdns" {
-  value = aws_lb.mylb.dns_name
-}
-
-
-
-
-
 
 
 
