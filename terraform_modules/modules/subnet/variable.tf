@@ -5,7 +5,7 @@ variable "cidr_block_1" {
 }
 
 variable "cidr_block_2" {
-  default     = "10.1.1.0/24"
+  default     = "10.1.2.0/24"
   description = "cidr_block for subnet 2"
   type        = string
 }
@@ -24,6 +24,7 @@ variable "availability_zone_2" {
 
 variable "map_public_ip_launch" {
   default = true
+  type = bool
 
 }
 

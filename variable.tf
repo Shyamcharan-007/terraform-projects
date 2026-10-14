@@ -1,6 +1,7 @@
 variable "cidr" {
-  default     = "10.0.0.0/16"
+  default     = "10.1.0.0/16"
   description = "CIDR block for the VPC"
+  type        = string
 }
 variable "instance_type" {
   default     = "t3.micro"
@@ -13,9 +14,10 @@ variable "aws_region" {
 }
 
 variable "ami_id" {
-  default     = "ami-1039298083873"
+  default     = "ami-097855b862d5b1eb2"
   type        = string
-  description = "AMI ID for aws instances"
+  description = "AMI ID for the aws instances"
+
 }
 variable "ssh_cidr" {
   type        = string
