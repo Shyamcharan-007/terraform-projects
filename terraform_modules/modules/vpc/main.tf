@@ -5,3 +5,4 @@ resource "aws_vpc" "myvpc" {
     Name = "myvpc"
   }
 }
+
