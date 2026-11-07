@@ -190,7 +190,7 @@ To access the load balancer:
 5. Open the following address in your browser, replacing the placeholder with the actual DNS name:
 
 ```text
-http://<LOAD_BALANCER_DNS_NAME>
+http://myalb-1234567890.us-east-1.elb.amazonaws.com
 ```
 
 If the EC2 instances are registered and healthy, and the security group rules are configured correctly, the load balancer should forward HTTP requests to the web servers.
