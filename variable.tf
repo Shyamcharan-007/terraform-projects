@@ -23,3 +23,12 @@ variable "ssh_cidr" {
   type        = string
   description = "public ip address followed by /32"
 }
+variable "subnet_1" {
+  default = "10.1.0.0/24"
+  type = string
+}
+
+variable "subnet_2" {
+  default = "10.1.1.0/24"
+  type = string
+}

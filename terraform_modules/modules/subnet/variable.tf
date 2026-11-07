@@ -1,12 +1,10 @@
-variable "cidr_block_1" {
-  default     = "10.1.0.0/24"
-  description = "cidr_block for subnet 1"
+variable "subnet_1" {
+  description = "subnet id for ec2 instnace 1"
   type        = string
 }
 
-variable "cidr_block_2" {
-  default     = "10.1.2.0/24"
-  description = "cidr_block for subnet 2"
+variable "subnet_2" {
+  description = "subnet id for ec2 instnace 2"
   type        = string
 }
 
@@ -24,7 +22,7 @@ variable "availability_zone_2" {
 
 variable "map_public_ip_launch" {
   default = true
-  type = bool
+  type    = bool
 
 }
 

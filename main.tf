@@ -1,3 +1,4 @@
+
 module "vpc" {
   source = "./terraform_modules/modules/vpc"
   cidr   = var.cidr
@@ -6,6 +7,8 @@ module "vpc" {
 module "subnet" {
   source = "./terraform_modules/modules/subnet"
   vpc    = module.vpc.vpc_id
+  subnet_1 = var.subnet_1
+  subnet_2 = var.subnet_2
 }
 
 module "internet_gateway" {
@@ -34,7 +37,6 @@ module "instance" {
   source            = "./terraform_modules/modules/instance"
   instance_type     = var.instance_type
   ami               = var.ami_id
-  vpc_id            = module.vpc.vpc_id
   subnet_1          = module.subnet.sub1_id
   subnet_2          = module.subnet.sub2_id
   security_group_id = module.security_groups.mysg_id

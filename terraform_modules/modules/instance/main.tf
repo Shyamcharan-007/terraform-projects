@@ -2,6 +2,7 @@ resource "aws_instance" "ins1" {
   instance_type = var.instance_type
   ami           = var.ami
   subnet_id     = var.subnet_1
+  vpc_security_group_ids = [var.security_group_id]
 
   user_data = <<-EOF
     #!/bin/bash
@@ -19,6 +20,7 @@ resource "aws_instance" "ins2" {
   instance_type = var.instance_type
   ami           = var.ami
   subnet_id     = var.subnet_2
+  vpc_security_group_ids = [var.security_group_id]
 
   user_data = <<-EOF
     #!/bin/bash
