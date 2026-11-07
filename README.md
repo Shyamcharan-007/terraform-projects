@@ -243,7 +243,7 @@ Through this project, I gained practical experience with:
 
 ## 👨‍💻 Author
 
-**Shyamcharan**
+**Shyam**
 
 GitHub: [@Shyamcharan-007](https://github.com/Shyamcharan-007)
 
